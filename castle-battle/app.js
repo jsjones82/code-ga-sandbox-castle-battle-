@@ -14,6 +14,7 @@ function CastleBattle() {
   const playerBarracks = [];
   const computerBarracks = [];
   let turnCount = 0;
+  let peonActionsSet = new Set();
 
   function Peon(name) {
     this.name = name;
@@ -51,20 +52,23 @@ function CastleBattle() {
       const selectedPeon = playerBarracks.find(peon => peon.name === peonName);
 
       if (selectedPeon) {
-        const peonAction = getInput(
-          `What action should ${selectedPeon.name} perform? (attack/repair/nothing) `
-        );
+        if (!peonActionsSet.has(selectedPeon.name)) {
+          const peonAction = getInput(
+            `What action should ${selectedPeon.name} perform? (attack/repair/nothing) `
+          );
 
-        if (peonAction === "attack") {
-          selectedPeon.job = "attack";
-        } else if (peonAction === "repair") {
-          selectedPeon.job = "repair";
-        } else if (peonAction === "nothing") {
-          selectedPeon.job = "nothing";
-        } else {
-          console.log("Invalid action.");
-          playerTurn();
-          return;
+          if (peonAction === "attack") {
+            selectedPeon.job = "attack";
+          } else if (peonAction === "repair") {
+            selectedPeon.job = "repair";
+          } else if (peonAction === "nothing") {
+            selectedPeon.job = "nothing";
+          } else {
+            console.log("Invalid action.");
+            playerTurn();
+            return;
+          }
+          peonActionsSet.add(selectedPeon.name);
         }
         processPlayerActions();
       } else {
@@ -98,38 +102,42 @@ function CastleBattle() {
     playerBarracks.forEach((peon) => {
       if (peon.job === "repair") {
         playerHP++;
-        peon.job = "nothing";
       } else if (peon.job === "attack") {
         computerHP--;
-        peon.job = "nothing";
       }
     });
     computerTurn();
   }
 
   function computerTurn() {
-    const computerAction = Math.floor(Math.random() * 3);
-    const amount = Math.floor(Math.random() * 5) + 1;
+    const computerAction = Math.floor(Math.random() * 2);
 
     if (computerAction === 0) {
-      computerHP += amount;
-      console.log(`Computer repaired itself for ${amount} HP.`);
-    } else if (computerAction === 1) {
-      playerHP -= amount;
-      console.log(`Computer attacked you for ${amount} HP.`);
+      computerBarracks.forEach((peon) => {
+        const randomAction = Math.random();
+        if (randomAction < 0.33) {
+          peon.job = "attack";
+        } else if (randomAction < 0.66) {
+          peon.job = "repair";
+        } else {
+          peon.job = "nothing";
+        }
+
+        if (peon.job === "attack") {
+          playerHP--;
+          console.log(`Computer peon ${peon.name} attacked. Player HP: ${playerHP}`);
+        } else if (peon.job === "repair") {
+          computerHP++;
+          console.log(`Computer peon ${peon.name} repaired. Computer HP: ${computerHP}`);
+        } else {
+          console.log(`Computer peon ${peon.name} did nothing.`);
+        }
+      });
     } else {
       const peonName = "ComputerPeon" + computerBarracks.length;
       computerBarracks.push(new Peon(peonName));
       console.log("Computer created a peon");
     }
-
-    computerBarracks.forEach((peon) => {
-      if (Math.random() < 0.5) {
-        playerHP--;
-      } else {
-        computerHP++;
-      }
-    });
 
     checkGameState();
   }
