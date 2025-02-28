@@ -8,6 +8,10 @@ function getInput(promptText) {
   return readlineSync.question(promptText);
 }
 
+function getRandomHP() {
+  return Math.floor(Math.random() * 3) + 1;
+}
+
 function CastleBattle() {
   let playerHP = 10;
   let computerHP = 10;
@@ -71,9 +75,11 @@ function CastleBattle() {
           peonActionsSet.add(selectedPeon.name);
         }
         processPlayerActions();
+        return; // added return here
       } else {
         console.log("Invalid peon selection.");
         playerTurn();
+        return;
       }
     } else if (action === "view") {
       if (playerBarracks.length === 0) {
@@ -88,22 +94,25 @@ function CastleBattle() {
       if (selectedPeon) {
         console.log(`${selectedPeon.name}'s current job is: ${selectedPeon.job}`);
         playerTurn();
+        return; // added return here
       } else {
         console.log("Invalid peon selection.");
         playerTurn();
+        return;
       }
     } else {
       console.log("Invalid action.");
       playerTurn();
+      return;
     }
   }
 
   function processPlayerActions() {
     playerBarracks.forEach((peon) => {
       if (peon.job === "repair") {
-        playerHP++;
+        playerHP += getRandomHP();
       } else if (peon.job === "attack") {
-        computerHP--;
+        computerHP -= getRandomHP();
       }
     });
     computerTurn();
@@ -112,29 +121,27 @@ function CastleBattle() {
   function computerTurn() {
     const computerAction = Math.floor(Math.random() * 2);
 
-    if (computerAction === 0) {
-      if (computerBarracks.length > 0) {
-        const randomIndex = Math.floor(Math.random() * computerBarracks.length);
-        const selectedPeon = computerBarracks[randomIndex];
+    if (computerAction === 0 && computerBarracks.length > 0) {
+      const randomIndex = Math.floor(Math.random() * computerBarracks.length);
+      const selectedPeon = computerBarracks[randomIndex];
 
-        const randomAction = Math.random();
-        if (randomAction < 0.33) {
-          selectedPeon.job = "attack";
-        } else if (randomAction < 0.66) {
-          selectedPeon.job = "repair";
-        } else {
-          selectedPeon.job = "nothing";
-        }
+      const randomAction = Math.random();
+      if (randomAction < 0.33) {
+        selectedPeon.job = "attack";
+      } else if (randomAction < 0.66) {
+        selectedPeon.job = "repair";
+      } else {
+        selectedPeon.job = "nothing";
+      }
 
-        if (selectedPeon.job === "attack") {
-          playerHP--;
-          console.log(`Computer peon ${selectedPeon.name} attacked. Player HP: ${playerHP}`);
-        } else if (selectedPeon.job === "repair") {
-          computerHP++;
-          console.log(`Computer peon ${selectedPeon.name} repaired. Computer HP: ${computerHP}`);
-        } else {
-          console.log(`Computer peon ${selectedPeon.name} did nothing.`);
-        }
+      if (selectedPeon.job === "attack") {
+        playerHP -= getRandomHP();
+        console.log(`Computer peon ${selectedPeon.name} attacked for ${getRandomHP()} HP. Player HP: ${playerHP}`);
+      } else if (selectedPeon.job === "repair") {
+        computerHP += getRandomHP();
+        console.log(`Computer peon ${selectedPeon.name} repaired for ${getRandomHP()} HP. Computer HP: ${computerHP}`);
+      } else {
+        console.log(`Computer peon ${selectedPeon.name} did nothing.`);
       }
     } else {
       const peonName = "ComputerPeon" + computerBarracks.length;
