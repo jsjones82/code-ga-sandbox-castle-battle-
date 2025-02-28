@@ -113,26 +113,29 @@ function CastleBattle() {
     const computerAction = Math.floor(Math.random() * 2);
 
     if (computerAction === 0) {
-      computerBarracks.forEach((peon) => {
+      if (computerBarracks.length > 0) {
+        const randomIndex = Math.floor(Math.random() * computerBarracks.length);
+        const selectedPeon = computerBarracks[randomIndex];
+
         const randomAction = Math.random();
         if (randomAction < 0.33) {
-          peon.job = "attack";
+          selectedPeon.job = "attack";
         } else if (randomAction < 0.66) {
-          peon.job = "repair";
+          selectedPeon.job = "repair";
         } else {
-          peon.job = "nothing";
+          selectedPeon.job = "nothing";
         }
 
-        if (peon.job === "attack") {
+        if (selectedPeon.job === "attack") {
           playerHP--;
-          console.log(`Computer peon ${peon.name} attacked. Player HP: ${playerHP}`);
-        } else if (peon.job === "repair") {
+          console.log(`Computer peon ${selectedPeon.name} attacked. Player HP: ${playerHP}`);
+        } else if (selectedPeon.job === "repair") {
           computerHP++;
-          console.log(`Computer peon ${peon.name} repaired. Computer HP: ${computerHP}`);
+          console.log(`Computer peon ${selectedPeon.name} repaired. Computer HP: ${computerHP}`);
         } else {
-          console.log(`Computer peon ${peon.name} did nothing.`);
+          console.log(`Computer peon ${selectedPeon.name} did nothing.`);
         }
-      });
+      }
     } else {
       const peonName = "ComputerPeon" + computerBarracks.length;
       computerBarracks.push(new Peon(peonName));
